@@ -1,0 +1,4 @@
+---
+# defaults for tmp-openshift
+
+playbook_debug: no

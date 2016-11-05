@@ -1,0 +1,73 @@
+
+- oso_service:
+    service_name: host2
+    project_name: tmp
+    labels:
+      app: tmp
+      service: host2
+    ports:
+    - name: port-80
+      port: 80
+      targetPort: 80
+    selector:
+      app: tmp
+      service: host2
+  register: output
+
+- debug: var=output
+  when: playbook_debug
+
+- oso_route:
+    project_name: tmp
+    service_port: port-80
+    labels:
+      app: tmp
+      service: host2
+    route_name: host2-80
+    replace: true
+    service_name: host2
+  register: output
+
+- debug: var=output
+  when: playbook_debug
+
+- oso_deployment:
+    project_name: tmp
+    labels:
+      app: tmp
+      service: host2
+    deployment_name: host2
+    containers:
+    - securityContext: {}
+      name: host2
+      image: jgpelaez/tmp-host2:None
+      args:
+      - /usr/bin/dumb-init
+      - /usr/sbin/apache2ctl
+      - -D
+      - FOREGROUND
+      ports:
+      - 80
+    replace: true
+  register: output
+
+- debug: var=output
+  when: playbook_debug
+
+- oso_deployment:
+    project_name: tmp
+    labels:
+      app: tmp
+      service: host1
+    deployment_name: host1
+    containers:
+    - securityContext: {}
+      name: host1
+      image: jgpelaez/tmp-host1:None
+      args:
+      - /bin/false
+    replace: true
+  register: output
+
+- debug: var=output
+  when: playbook_debug
